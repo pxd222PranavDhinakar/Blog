@@ -3,7 +3,7 @@ header('Access-Control-Allow-Origin: http://localhost:3000'); // Allow AJAX call
 header('Content-Type: application/json'); // If you are returning JSON
 
 // Path to the Bash script
-$scriptPath = '../Scripts/monitor_resources.sh';
+$scriptPath = '../scripts/monitor_resources.sh';
 
 // Execute the script and capture the output
 $output = shell_exec("bash $scriptPath");
