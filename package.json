@@ -1,0 +1,17 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "description": "A simple blog project",
+  "main": "server.js",
+  "scripts": {
+    "start": "concurrently \"node server.js\" \"php -S localhost:8000 -t backend\"",
+    "start-node": "node server.js",
+    "start-php": "php -S localhost:8000 -t backend"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
