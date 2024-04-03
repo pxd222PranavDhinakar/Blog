@@ -6,6 +6,7 @@
     <title>Project Showcase</title>
     <link rel="stylesheet" href="css/index.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
 </head>
 <body>
     <header>
@@ -23,70 +24,17 @@
         </nav>
         <button id="fetchGithubData">Fetch GitHub Data</button>
     </header>
-    <section>
+    <div class="dashboard">
+        <section id="contributionsGraph" class="graph"></section>
+        <div id="tooltip" class="tooltip" style="opacity:0;"></div>
+    </div>    
+    <section class="stats">
         <p>This showcase features a variety of small scripting projects...</p>
         <div id="languageStats"></div>
-        <canvas id="langChart" width="400" height="400"></canvas>
-        <div id="commitLog"></div> <!-- Container for the commit log -->
+        <canvas id="langChart" width="300" height="300"></canvas>
+        <div id="commitLog"></div>
     </section>
     <div id="output"></div>
-    
-    
-    <script>
-        document.getElementById('fetchGithubData').addEventListener('click', function() {
-            fetch('http://localhost:8000/backend/', {
-                method: 'GET',
-                headers: new Headers({
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);  // Print data to browser console
-                const ctx = document.getElementById('langChart').getContext('2d');
-                const chart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: Object.keys(data.languages),
-                        datasets: [{
-                            label: 'Language Usage',
-                            data: Object.values(data.languages),
-                            backgroundColor: [
-                                'rgb(255, 99, 132)',
-                                'rgb(54, 162, 235)',
-                                'rgb(255, 206, 86)',
-                                'rgb(75, 192, 192)',
-                                'rgb(153, 102, 255)',
-                            ]
-                        }]
-                    },
-                    options: {}
-                });
-                // Populate language stats table
-                let statsHTML = '<table><tr><th>Language</th><th>Bytes</th></tr>';
-                for (let lang in data.languages) {
-                    statsHTML += `<tr><td>${lang}</td><td>${data.languages[lang]}</td></tr>`;
-                }
-                statsHTML += '</table>';
-                document.getElementById('languageStats').innerHTML = statsHTML;
-
-                // Populate commit logs
-                let commitHTML = '<h2>Recent Commits</h2><ul>';
-                data.commits.forEach(commit => {
-                    const commitDate = new Date(commit.commit.author.date);
-                    commitHTML += `<li>${commit.commit.message} by ${commit.commit.author.name} on ${commitDate.toLocaleDateString()} at ${commitDate.toLocaleTimeString()}</li>`;
-                });
-                commitHTML += '</ul>';
-                document.getElementById('commitLog').innerHTML = commitHTML;
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    </script>
+    <script src="js/index.js"></script>
 </body>
 </html>
