@@ -1,18 +1,17 @@
 <!--project3.html-->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism.css">
     <script src="https://unpkg.com/prismjs/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project 3 - Report Generation</title>
     <link rel="stylesheet" href="css/project3.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
-
 
 <body>
     <header>
@@ -27,17 +26,20 @@
                 <li><a href="http://localhost:8000/frontend/project5.html">Project 5</a></li>
                 <li><a href="http://localhost:8000/frontend/project6.html">Project 6</a></li>
             </ul>
-        </nav>        
+        </nav>
     </header>
 
     <section>
         <h2>Project 3: Report Generation</h2>
         <p>This project demonstrates a report generation script. It generates a report for the directory it is residing in. Click the button below to generate the report:</p>
+        <p>The reason I made this script was because I often wish to give Chat GPT information about the project I am currently working on, but it is very time consuming and frustrating to put together a detailed description of my project. This script automatically generates a report that outlines the structure of your desired directory and includes the script contents.</p>
+        <p>The report generated on this page is of the Scripts directory of my project that contains all of the bash scripts I have written for this project, although the script can be used to generate reports for any specified directory.:</p>
+        <div id="scriptsContainer"></div>
         <button id="runProject3">Generate Report</button>
         <div id="result">
             <strong>Generated Report:</strong><br>
-            <pre><code class="language-markdown"></code></pre>
-        </div>        
+            <div class="content" style="background-color: #f4f4f4; color: #333; padding: 10px; border-radius: 5px; overflow: auto;"></div>
+        </div>             
     </section>    
 
     <footer>
@@ -46,27 +48,52 @@
 
     <script>
         $(document).ready(function() {
-            $('#runProject3').on('click', function() {
+            // Load script contents immediately when the page loads
+            loadScriptContents();
+        
+            // Function to load script contents
+            function loadScriptContents() {
                 $.ajax({
-                    url: 'http://localhost:8000/backend/project3.php',
+                    url: '/backend/project3.php',
                     type: 'GET',
-                    dataType: 'json', // This ensures the response is treated as JSON.
+                    data: {action: 'load'},
+                    dataType: 'json',
                     success: function(response) {
-                        if (response.data) {
-                            // Use .text() to safely insert the content if it's plain text.
-                            $('#result code').text(response.data);
-                            Prism.highlightAll(); // Re-highlight all syntax.
+                        if (response.generate_report) {
+                            $('#scriptsContainer').html('<pre><code>' + response.generate_report + '</code></pre>');
+                            Prism.highlightAll();  // Highlight syntax if you're using Prism
                         } else {
-                            $('#result code').text('No data to display.');
+                            $('#scriptsContainer').html('Error loading script contents.');
                         }
                     },
                     error: function(xhr, status, error) {
-                        $('#result code').text('Error loading data: ' + error);
+                        $('#scriptsContainer').html('Error loading data: ' + error);
+                    }
+                });
+            }
+        
+            $('#runProject3').on('click', function() {
+                $.ajax({
+                    url: '/backend/project3.php',
+                    type: 'GET',
+                    data: {action: 'generate'},
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.data) {
+                            var converter = new showdown.Converter();
+                            var html = converter.makeHtml(response.data);
+                            $('#result .content').html(html);
+                        } else {
+                            $('#result .content').html('No data to display.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#result .content').html('Error loading data: ' + error);
                     }
                 });
             });
-        });               
-    </script>
-    
+        });
+        </script>
+        
 </body>
 </html>

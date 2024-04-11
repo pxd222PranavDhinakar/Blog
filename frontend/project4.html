@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 4 - Video Gallery</title>
+    <link rel="stylesheet" href="css/project4.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Welcome to My Project Showcase</h1>
+        <nav>
+            <ul>
+                <li><a href="http://localhost:8000/frontend/index.html">Home</a></li>
+                <li><a href="http://localhost:8000/frontend/project1.html">Project 1</a></li>
+                <li><a href="http://localhost:8000/frontend/project2.html">Project 2</a></li>
+                <li><a href="http://localhost:8000/frontend/project3.html">Project 3</a></li>
+                <li><a href="http://localhost:8000/frontend/project4.html">Project 4</a></li>
+                <li><a href="http://localhost:8000/frontend/project5.html">Project 5</a></li>
+                <li><a href="http://localhost:8000/frontend/project6.html">Project 6</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section>
+        <h2>Project 4: Video Gallery from GitHub</h2>
+        <p>Click the button below to load videos from a GitHub repository:</p>
+        <button id="loadVideos">Load Videos</button>
+        <div id="videoContainer"></div>
+    </section>
+    <script>
+        $('#loadVideos').on('click', function() {
+            $.ajax({
+                url: '/backend/project4.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(videos) {
+                    $('#videoContainer').empty();
+                    if (videos.length > 0) {
+                        videos.forEach(function(video) {
+                            $('#videoContainer').append(
+                                `<div><h3>${video.name}</h3>
+                                <video controls width="640">
+                                    <source src="${video.url}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video></div>`
+                            );
+                        });
+                    } else {
+                        $('#videoContainer').html('<p>No videos to display.</p>');
+                    }
+                },
+                error: function() {
+                    $('#videoContainer').html('<p>Error loading videos.</p>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

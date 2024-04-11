@@ -9,7 +9,8 @@
     "start-php": "php -S localhost:8000 -t backend"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "marked": "^12.0.2"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
