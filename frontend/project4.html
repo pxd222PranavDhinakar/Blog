@@ -24,7 +24,9 @@
     </header>
     <section>
         <h2>Project 4: Video Gallery from GitHub</h2>
+        <p>This page displays some algorithmic animations that I created using the MANIM animation library which was written by prominent Mathematics youtuber 3Blue1Brown:</p>
         <p>Click the button below to load videos from a GitHub repository:</p>
+        <p>NOTE: this is prone to some faulty behaviour, but if you reload the page and try more than 2 or 3 times it should function quite well:</p>
         <button id="loadVideos">Load Videos</button>
         <div id="videoContainer"></div>
     </section>
@@ -37,14 +39,45 @@
                 success: function(videos) {
                     $('#videoContainer').empty();
                     if (videos.length > 0) {
-                        videos.forEach(function(video) {
-                            $('#videoContainer').append(
-                                `<div><h3>${video.name}</h3>
-                                <video controls width="640">
-                                    <source src="${video.url}" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video></div>`
-                            );
+                        // Manually specify the order of videos
+                        const orderedVideos = [
+                            'WhatAreAlgorithms.mp4',
+                            'PrimitiveAlgorithm.mp4',
+                            'KMeansPlusPlus.mp4'
+                        ];
+
+                        // Map each filename to its corresponding video object
+                        const videoMap = {};
+                        videos.forEach(video => {
+                            videoMap[video.name] = video;
+                        });
+
+                        orderedVideos.forEach(videoName => {
+                            const video = videoMap[videoName];
+                            if (video) {
+                                let description = '';
+                                switch (videoName) {
+                                    case 'WhatAreAlgorithms.mp4':
+                                        description = "A little animated introduction to start a discussion on the many ideas of what exactly and Algorithm IS and a nice segway into the next video that goes in deeper detail.";
+                                        break;
+                                    case 'PrimitiveAlgorithm.mp4':
+                                        description = "An animated wlakthrough of the step-by-step formal mathematical process of defining a problem to solve and constructing an effective algorithmic solution for that problem.";
+                                        break;
+                                    case 'KMeansPlusPlus.mp4':
+                                        description = "Animated run of the K-Means++ algorithm operating on a simple 2-feature scatter plot of data and its optimization over K-means.";
+                                        break;
+                                }
+                                $('#videoContainer').append(
+                                    `<div>
+                                        <h3>${video.name.replace('.mp4', '')}</h3>
+                                        <p>${description}</p>
+                                        <video controls width="640">
+                                            <source src="${video.url}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>`
+                                );
+                            }
                         });
                     } else {
                         $('#videoContainer').html('<p>No videos to display.</p>');
