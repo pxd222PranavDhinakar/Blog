@@ -1,6 +1,8 @@
 # Directory Structure
 
 ```
+Scripts/
+|-- asm_analysis.awk
 |-- file-management-system/
 |   |-- batch/
 |   |   +-- batch_processing.sh
@@ -46,6 +48,11 @@ process_file() {
 process_directory() {
     local directory="$1"
     local indent="$2"
+    local is_root="$3"
+
+    if [ "$is_root" = true ]; then
+        echo "${directory##*/}/" >> "$report_file"
+    fi
 
     local entries=("$directory"/*)
     local num_entries=${#entries[@]}
@@ -58,7 +65,7 @@ process_directory() {
             else
                 echo "$indent|-- ${entry##*/}/" >> "$report_file"
             fi
-            process_directory "$entry" "$indent|   "
+            process_directory "$entry" "$indent|   " false
         elif [ -f "$entry" ]; then
             if [ $i -eq $num_entries ]; then
                 echo "$indent+-- ${entry##*/}" >> "$report_file"
@@ -86,7 +93,7 @@ report_file="$(dirname "$working_directory")/report.md"
 echo "# Directory Structure" > "$report_file"
 echo "" >> "$report_file"
 echo "\\`\\`\\`" >> "$report_file"
-process_directory "$working_directory" "" >> "$report_file"
+process_directory "$working_directory" "" true >> "$report_file"
 echo "\\`\\`\\`" >> "$report_file"
 echo "" >> "$report_file"
 
@@ -146,6 +153,94 @@ if [[ "$network_in_packets" -gt "$network_threshold" || "$network_out_packets" -
   echo "Alert: Network activity is above threshold."
 fi
 
+```
+
+## asm_analysis.awk
+```bash
+#!/usr/bin/awk -f
+
+BEGIN {
+    print "Assembly Code Analysis:\n"
+}
+
+/^[^;]/ {
+    # Remove leading whitespace
+    gsub(/^\s+/, "")
+
+    # Extract the instruction and operands
+    instruction = $1
+    operands = $0
+    sub(/^[^\t]+\t*/, "", operands)
+
+    # Analyze the instruction
+    if (instruction == ".cfi_startproc") {
+        print "Start of the function prologue"
+    } else if (instruction == "sub") {
+        print "Subtract " operands " from the stack pointer (sp) to allocate stack space"
+    } else if (instruction == ".cfi_def_cfa_offset") {
+        print "Set the CFA (Canonical Frame Address) offset to " operands
+    } else if (instruction == "stp") {
+        print "Store a pair of registers " operands " onto the stack"
+    } else if (instruction == "add") {
+        print "Add " operands " to the destination register"
+    } else if (instruction == ".cfi_def_cfa") {
+        print "Define the CFA (Canonical Frame Address) register and offset"
+    } else if (instruction == ".cfi_offset") {
+        print "Set the offset of a register " operands " in the CFA"
+    } else if (instruction == "mov") {
+        print "Move the value " operands " to the destination register"
+    } else if (instruction == "str") {
+        print "Store the value from register " operands " to memory"
+    } else if (instruction == "adrp") {
+        print "Calculate the page address of a symbol " operands " and store it in the destination register"
+    } else if (instruction == "add") {
+        print "Add the page offset of a symbol " operands " to the destination register"
+    } else if (instruction == "bl") {
+        print "Branch with link to the function " operands
+    } else if (instruction == "ldp") {
+        print "Load a pair of registers " operands " from the stack"
+    } else if (instruction == "ret") {
+        print "Return from the function"
+    } else if (instruction == ".loh") {
+        print "Linker optimization hint: " operands
+    } else if (instruction == ".cfi_endproc") {
+        print "End of the function epilogue"
+    } else {
+        print "Unknown instruction: " $0
+    }
+
+    print ""
+}
+
+/^;/ {
+    print "Comment: " $0 "\n"
+}
+
+END {
+    print "End of Assembly Code Analysis"
+}
+
+/^\s*\.section/ {
+    print "Directive: Specify the section for the following code or data: " $0
+}
+
+/^\s*\.build_version/, /^\s*\.sdk_version/ {
+    print "Directive: Specify build and SDK version information: " $0
+}
+
+/^\s*\.globl/ {
+    print "Directive: Declare a global symbol: " $0
+}
+
+/^\s*\.p2align/ {
+    print "Directive: Align the following code or data on a power-of-two boundary: " $0
+}
+
+/^\s*[a-zA-Z0-9_]+:/ {
+    print "Label: Define a label for addressability: " $0
+}
+
+# ... Add more rules for other directives and instructions
 ```
 
 ## file-management-system/config/batch_config.txt
