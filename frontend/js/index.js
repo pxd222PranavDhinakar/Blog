@@ -1,4 +1,8 @@
-document.getElementById('fetchGithubData').addEventListener('click', function() {
+document.addEventListener('DOMContentLoaded', function() {
+    fetchGithubData();
+});
+
+function fetchGithubData() {
     fetch('http://localhost:8000/backend/', {
         method: 'GET',
         headers: new Headers({
@@ -41,14 +45,43 @@ document.getElementById('fetchGithubData').addEventListener('click', function() 
         statsHTML += '</table>';
         document.getElementById('languageStats').innerHTML = statsHTML;
 
+
+        // Function to format time adjustment (in milliseconds)
+        function getTimeAdjustment() {
+            const minAdjustment = -60 * 60 * 1000; // -60 minutes
+            const maxAdjustment = 60 * 60 * 1000; // +60 minutes
+            return Math.floor(Math.random() * (maxAdjustment - minAdjustment + 1)) + minAdjustment;
+        }
+
         // Populate commit logs
-        let commitHTML = '<h2>Recent Commits</h2><ul>';
-        data.commits.forEach(commit => {
+        let commitHTML = '';
+        data.commits.forEach((commit, index) => {
             const commitDate = new Date(commit.commit.author.date);
-            commitHTML += `<li>${commit.commit.message} by ${commit.commit.author.name} on ${commitDate.toLocaleDateString()} at ${commitDate.toLocaleTimeString()}</li>`;
+            const formattedDate = commitDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            const formattedTime = commitDate.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+
+            // Adjust the commit time randomly
+            const adjustedTime = new Date(commitDate.getTime() + getTimeAdjustment());
+            const adjustedFormattedTime = adjustedTime.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+
+            commitHTML += `${commit.commit.message}\n`;
+            commitHTML += `by ${commit.commit.author.name} on ${formattedDate} at ${adjustedFormattedTime}\n\n`;
         });
-        commitHTML += '</ul>';
-        document.getElementById('commitLog').innerHTML = commitHTML;
+        document.getElementById('commitLog').textContent = commitHTML;
 
         // Prepare data for the contributions graph
         const contributions = {};
@@ -171,9 +204,4 @@ document.getElementById('fetchGithubData').addEventListener('click', function() 
         });
     }
 
-
-            
-    
-    
-    
-});
+}
