@@ -14,7 +14,7 @@ curl_setopt_array($curl, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_USERAGENT => 'PHP Application',
     CURLOPT_HTTPHEADER => [
-        'Authorization: Bearer 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'
+        'Authorization: Bearer'
     ]
 ]);
 
@@ -31,7 +31,7 @@ curl_setopt_array($curl, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_USERAGENT => 'PHP Application',
     CURLOPT_HTTPHEADER => [
-        'Authorization: Bearer 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'
+        'Authorization: Bearer'
     ]
 ]);
 
